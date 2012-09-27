@@ -54,7 +54,7 @@ def get_main_dir():
     '''
     if (hasattr(sys, "frozen") or hasattr(sys, "importers") or imp.is_frozen("__main__")):
         return os.path.dirname(sys.executable)
-    return os.path.dirname(sys.argv[0])
+    return os.path.dirname(os.path.realpath(sys.argv[0]))
 
 def prefsFilePath():
     '''Returns path to our preferences file.'''
