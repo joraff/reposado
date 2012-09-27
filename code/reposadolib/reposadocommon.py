@@ -48,17 +48,33 @@ import urlparse
 import warnings
 from xml.parsers.expat import ExpatError
 
-def get_main_dir():
+def get_main_dir(follow_symlinks=False):
     '''Returns the directory name of the script or the directory name of the exe if py2exe was used
     Code from http://www.py2exe.org/index.cgi/HowToDetermineIfRunningFromExe
     '''
     if (hasattr(sys, "frozen") or hasattr(sys, "importers") or imp.is_frozen("__main__")):
         return os.path.dirname(sys.executable)
-    return os.path.dirname(os.path.realpath(sys.argv[0]))
+    path = ''
+    if (follow_symlinks):
+        path = os.path.dirname(os.path.realpath(sys.argv[0]))
+    else:
+        path = os.path.dirname(sys.argv[0])
+    return path
 
 def prefsFilePath():
     '''Returns path to our preferences file.'''
-    return os.path.join(get_main_dir(), 'preferences.plist')
+    prefsFile = ''
+    try:
+        with open(os.path.join(get_main_dir(), 'preferences.plist')) as f: pass
+        prefsFile = os.path.join(get_main_dir(), 'preferences.plist')
+    except IOError as e:
+        try:
+            with open(os.path.join(os.path.realpath(get_main_dir(True)), 'preferences.plist')) as f: pass
+            prefsFile = os.path.join(os.path.realpath(get_main_dir(True)), 'preferences.plist')
+        except IOError as e:
+            pass
+    return prefsFile
+
 
 
 def pref(prefname):
